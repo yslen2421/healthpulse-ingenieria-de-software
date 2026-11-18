@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import nivel, estado, panel_notificaciones %}
+{% block contenido %}
+<div class="rejilla">
+  <div>
+    <div class="tarjeta">
+      <h1>Mi cola de pacientes</h1>
+      <form method="post" action="{{ url_for('cambiar_disponibilidad') }}">
+        Mi estado: <strong>{{ usuario.disponibilidad.value }}</strong> ·
+        {% for e in ['DISPONIBLE', 'DESCONECTADO'] if e != usuario.disponibilidad.value %}
+          <button class="boton peq {{ 'verde' if e == 'DISPONIBLE' else 'gris' }}" name="estado" value="{{ e }}">Ponerme {{ e|lower }}</button>
+        {% endfor %}
+        <span class="muted"> · {{ espera }} paciente(s) en lista de espera</span>
+      </form>
+      <p class="muted">Ordenada por nivel de triaje (III antes que IV, IV antes que V) y, a igual nivel, por hora de llegada.</p>
+      <table>
+        <tr><th>Nivel</th><th>Paciente</th><th>Síntoma</th><th>Cita</th><th>Estado</th><th></th></tr>
+        {% for c in cola %}
+        <tr>
+          <td>{{ nivel(c.nivel) }}</td>
+          <td>{{ repo.usuario(c.paciente_id).nombre }}</td>
+          <td>{{ c.sintomas[0].sintoma_principal }} ({{ c.sintomas[0].intensidad }}/10)</td>
+          <td>{{ c.fecha_hora_cita.strftime('%H:%M') }}</td>
+          <td>{{ estado(c) }}</td>
+          <td><a class="boton peq" href="{{ url_for('ver_consulta', consulta_id=c.id) }}">Atender</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="muted">No tienes pacientes asignados.</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div class="tarjeta">
+      <h2>Consultas atendidas</h2>
+      <table>
+        <tr><th>Consulta</th><th>Paciente</th><th>Estado</th><th>Receta</th></tr>
+        {% for c in atendidas %}
+        <tr><td><a href="{{ url_for('ver_consulta', consulta_id=c.id) }}">{{ c.id }}</a></td>
+            <td>{{ repo.usuario(c.paciente_id).nombre }}</td><td>{{ estado(c) }}</td>
+            <td>{{ c.receta.estado_envio.value if c.receta else '—' }}</td></tr>
+        {% else %}<tr><td colspan="4" class="muted">Aún no hay consultas atendidas.</td></tr>{% endfor %}
+      </table>
+    </div>
+  </div>
+  <div>{{ panel_notificaciones(notificaciones) }}</div>
+</div>
+{% endblock %}

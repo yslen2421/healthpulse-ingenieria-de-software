@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block contenido %}
+{% set d = datos or {} %}
+<div class="tarjeta" style="max-width:760px">
+  <h1>Nueva consulta: triaje</h1>
+  <p class="muted">Si tienes dolor fuerte en el pecho, dificultad para respirar o pérdida de conciencia, no esperes: llama a la línea 123.</p>
+  <form method="post">
+    <h2>1. Tus síntomas</h2>
+    <label for="sintoma">Síntoma principal</label>
+    <input id="sintoma" name="sintoma" required placeholder="Ej.: dolor de cabeza, fiebre, tos" value="{{ d.get('sintoma','') }}">
+    <div class="fila">
+      <div><label for="horas">¿Hace cuántas horas empezó?</label><input id="horas" name="horas" type="number" min="0" step="0.5" required value="{{ d.get('horas','') }}"></div>
+      <div><label for="intensidad">Intensidad (1 a 10)</label><input id="intensidad" name="intensidad" type="number" min="1" max="10" required value="{{ d.get('intensidad','') }}"></div>
+    </div>
+    <label for="descripcion">Cuéntanos más (opcional, máximo 500 caracteres)</label>
+    <textarea id="descripcion" name="descripcion" maxlength="500">{{ d.get('descripcion','') }}</textarea>
+
+    <h2 style="margin-top:18px">2. Signos vitales</h2>
+    <div class="radio">
+      <label><input type="radio" name="modo_signos" value="sensor" checked> Tomar con el sensor (simulado)</label>
+      <label><input type="radio" name="modo_signos" value="manual"> Ingresarlos a mano</label>
+      <label><input type="radio" name="modo_signos" value="omitir"> Omitir</label>
+    </div>
+    <label for="escenario">Escenario del sensor simulado (solo para la demo)</label>
+    <select id="escenario" name="escenario">
+      <option value="normal">Lectura normal</option>
+      <option value="fiebre">Fiebre</option>
+      <option value="taquicardia">Taquicardia (FC &gt; 130)</option>
+      <option value="hipoxia">Oxígeno bajo (SpO2 &lt; 90 %)</option>
+      <option value="falla">El sensor no responde (timeout de 5 s)</option>
+    </select>
+    <p class="muted">Si eliges "a mano", o si el sensor falla, usamos estos valores:</p>
+    <div class="fila">
+      <div><label for="fc">Frecuencia cardíaca (lpm)</label><input id="fc" name="fc" type="number" min="20" max="250"></div>
+      <div><label for="spo2">Saturación O2 (%)</label><input id="spo2" name="spo2" type="number" min="50" max="100" step="0.1"></div>
+      <div><label for="temp">Temperatura (°C)</label><input id="temp" name="temp" type="number" min="30" max="45" step="0.1"></div>
+    </div>
+    <p style="margin-top:18px"><button class="boton verde" type="submit">Enviar y clasificar</button></p>
+  </form>
+</div>
+{% endblock %}

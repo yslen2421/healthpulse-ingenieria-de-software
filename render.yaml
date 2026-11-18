@@ -1,0 +1,17 @@
+# Despliegue en Render (plan gratuito). Render lee este archivo automáticamente (Blueprint).
+services:
+  - type: web
+    name: healthpulse-grupo3
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # 1 worker porque el prototipo guarda los datos en memoria; 4 hilos para atender varias peticiones.
+    startCommand: gunicorn wsgi:app --workers 1 --threads 4 --bind 0.0.0.0:$PORT
+    healthCheckPath: /salud
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SECRET_KEY
+        generateValue: true
+      - key: HTTPS_ONLY
+        value: "1"

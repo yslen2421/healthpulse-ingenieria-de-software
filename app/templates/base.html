@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}HealthPulse Telemedicina{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+<header>
+  <div class="barra">
+    <a class="logo" href="{{ url_for('inicio') }}">Health<span>Pulse</span></a>
+    <span class="muted">Telemedicina con triaje IA · Prototipo Grupo 3</span>
+    <nav>
+      {% if usuario %}
+        {% if usuario.rol == Rol.PACIENTE %}
+          <a href="{{ url_for('panel_paciente') }}">Mis consultas</a>
+          <a href="{{ url_for('nueva_consulta') }}">Nueva consulta</a>
+        {% elif usuario.rol == Rol.MEDICO %}
+          <a href="{{ url_for('panel_medico') }}">Mi cola</a>
+        {% else %}
+          <a href="{{ url_for('panel_admin') }}">Panel</a>
+        {% endif %}
+        <span class="quien">{{ usuario.nombre }} · {{ usuario.rol.value|lower }}</span>
+        <a href="{{ url_for('logout') }}">Salir</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+<main>
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in mensajes %}<div class="aviso {{ cat }}">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  {% block contenido %}{% endblock %}
+</main>
+<footer>HealthPulse Telemedicina · Universidad Sergio Arboleda · Ingeniería de Software I · Datos 100 % ficticios. Sensor, MotorIA y farmacia simulados.</footer>
+</body>
+</html>

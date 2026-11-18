@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% from "_macros.html" import nivel, estado %}
+{% block contenido %}
+{% set es_medico = usuario.id == c.medico_id %}
+{% set es_paciente = usuario.id == c.paciente_id %}
+<h1>Consulta {{ c.id }} {{ estado(c) }}</h1>
+
+{% if c.nombre_estado == 'REMITIDA_URGENCIAS' %}
+<div class="urgencia">
+  <h2>Dirígete a urgencias presenciales o llama a la línea 123</h2>
+  Tu triaje salió {{ c.nivel.romano }} ({{ c.nivel.descripcion }}). Este caso no se puede atender por videollamada.
+</div>
+{% endif %}
+
+<div class="rejilla">
+  <div>
+    <div class="tarjeta">
+      <h2>Resultado del triaje {{ nivel(c.nivel) }}</h2>
+      {% if c.triaje %}
+        <p><strong>{{ c.nivel.descripcion }}.</strong></p>
+        <p class="muted">Sugerido por: {{ c.triaje.origen }} (nivel {{ c.triaje.nivel_sugerido_ia.romano }})
+          {% if c.triaje.nivel_final_medico %} · Validado por el médico: nivel {{ c.triaje.nivel_final_medico.romano }}{% endif %}</p>
+        <p>{{ c.triaje.explicacion_ia }}</p>
+      {% endif %}
+      <table>
+        <tr><th>Síntoma</th><th>Horas</th><th>Intensidad</th><th>Descripción</th></tr>
+        {% for s in c.sintomas %}
+        <tr><td>{{ s.sintoma_principal }}</td><td>{{ s.tiempo_evolucion_horas }}</td><td>{{ s.intensidad }}/10</td><td>{{ s.descripcion_libre or '—' }}</td></tr>
+        {% endfor %}
+      </table>
+      <p><strong>Signos vitales:</strong>
+        {% if c.signos_vitales %}
+          FC {{ c.signos_vitales.frecuencia_cardiaca }} lpm · SpO2 {{ c.signos_vitales.saturacion_o2 }} % · Temp {{ c.signos_vitales.temperatura }} °C
+          <span class="muted">(origen: {{ c.signos_vitales.origen.value }})</span>
+        {% else %}<span class="muted">no se tomaron</span>{% endif %}
+      </p>
+    </div>
+
+    {% if c.nombre_estado in ('AGENDADA', 'EN_CURSO') %}
+    <div class="tarjeta">
+      <h2>Cita</h2>
+      <p>Médico: <strong>{{ medico.nombre }}</strong> · Hora: <strong>{{ c.fecha_hora_cita.strftime('%d/%m %H:%M') }}</strong></p>
+      {% if sala %}<p><a class="boton" href="{{ sala }}" target="_blank" rel="noopener">Entrar a la sala de video (WebRTC)</a></p>
+      <p class="muted">Sala privada: solo tú y {{ 'tu paciente' if es_medico else 'tu médico' }} pueden ver este enlace.</p>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if c.nombre_estado == 'EN_ESPERA' %}
+    <div class="tarjeta"><h2>Estás en la lista de espera</h2>
+      <p>Posición <strong>{{ posicion }}</strong>. Te avisaremos en cuanto un médico quede disponible.</p></div>
+    {% endif %}
+
+    {% if es_medico and c.nombre_estado == 'AGENDADA' %}
+    <div class="tarjeta">
+      <h2>Acciones del médico</h2>
+      <form class="enlinea" method="post" action="{{ url_for('validar_triaje', consulta_id=c.id) }}">
+        Validar nivel:
+        <select name="nivel" style="width:auto">{% for n in niveles if n.value >= 3 %}<option value="{{ n.value }}" {{ 'selected' if n == c.nivel }}>{{ n.romano }}</option>{% endfor %}</select>
+        <button class="boton peq gris">Guardar</button>
+      </form>
+      <form class="enlinea" method="post" action="{{ url_for('iniciar_videollamada', consulta_id=c.id) }}">
+        <button class="boton verde">Iniciar videoconsulta</button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if es_medico and c.nombre_estado == 'EN_CURSO' %}
+    <div class="tarjeta">
+      <h2>Finalizar consulta y emitir receta</h2>
+      <form method="post" action="{{ url_for('finalizar_consulta', consulta_id=c.id) }}">
+        <label for="diagnostico">Diagnóstico</label>
+        <textarea id="diagnostico" name="diagnostico" required></textarea>
+        <p class="muted">Receta (deja vacío si no hay medicamentos):</p>
+        {% for i in range(1, 4) %}
+        <div class="fila-4">
+          <input name="medicamento{{ i }}" placeholder="Medicamento {{ i }}">
+          <input name="dosis{{ i }}" placeholder="Dosis">
+          <input name="frecuencia{{ i }}" placeholder="Frecuencia">
+          <input name="duracion{{ i }}" placeholder="Duración">
+        </div>
+        {% endfor %}
+        <p><button class="boton verde">Finalizar y enviar receta a la farmacia</button></p>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if c.receta %}
+    <div class="tarjeta">
+      <h2>Receta digital {{ c.receta.id }}</h2>
+      <p class="muted">Código de verificación (QR): <strong>{{ c.receta.generar_codigo_qr() }}</strong> · Envío a farmacia: <strong>{{ c.receta.estado_envio.value }}</strong>
+        {% if c.receta.numero_pedido %} · Pedido {{ c.receta.numero_pedido }}{% endif %} · Intentos: {{ c.receta.intentos_envio }}</p>
+      <table><tr><th>Medicamento</th><th>Dosis</th><th>Frecuencia</th><th>Duración</th></tr>
+      {% for it in c.receta.items %}<tr><td>{{ it.medicamento }}</td><td>{{ it.dosis }}</td><td>{{ it.frecuencia }}</td><td>{{ it.duracion }}</td></tr>{% endfor %}
+      </table>
+      {% if c.diagnostico %}<p><strong>Diagnóstico:</strong> {{ c.diagnostico }}</p>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if es_paciente and c.nombre_estado in ('EN_ESPERA', 'AGENDADA') %}
+    <form method="post" action="{{ url_for('cancelar_consulta', consulta_id=c.id) }}">
+      <input type="hidden" name="motivo" value="El paciente canceló">
+      <button class="boton rojo peq">Cancelar consulta</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="tarjeta">
+      <h2>Paciente</h2>
+      <p>{{ paciente.nombre }}<br><span class="muted">Documento {{ paciente.documento_id }}</span></p>
+    </div>
+    <div class="tarjeta">
+      <h2>Bitácora de la consulta</h2>
+      <div class="bitacora">
+        {% for cuando, texto in c.bitacora %}<div>{{ cuando.strftime('%H:%M:%S') }} · {{ texto }}</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% from "_macros.html" import nivel, estado, panel_notificaciones %}
+{% block contenido %}
+<h1>Panel del administrador</h1>
+<div class="rejilla-3">
+  <div class="tarjeta"><div class="etiqueta">Triajes realizados</div><div class="dato">{{ stats.total }}</div></div>
+  <div class="tarjeta"><div class="etiqueta">Tiempo promedio triaje → inicio de consulta</div>
+    <div class="dato">{{ stats.promedio_min if stats.promedio_min is not none else '—' }}{% if stats.promedio_min is not none %} min{% endif %}</div></div>
+  <div class="tarjeta"><div class="etiqueta">Pacientes en lista de espera</div><div class="dato">{{ espera|length }}</div></div>
+</div>
+
+<div class="rejilla">
+  <div>
+    {% if alertas %}
+    <div class="tarjeta" style="border-color:#f3b8b2">
+      <h2>Alertas de espera larga (más de 30 min, nivel III)</h2>
+      {% for a in alertas %}<div class="aviso alerta">Consulta <a href="{{ url_for('ver_consulta', consulta_id=a.consulta_id) }}">{{ a.consulta_id }}</a> lleva {{ a.minutos }} min en espera.</div>{% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="tarjeta">
+      <h2>Triajes por nivel</h2>
+      {% set maximo = (stats.por_nivel|map(attribute=1)|max) or 1 %}
+      <table>
+      {% for romano, n in stats.por_nivel %}
+        <tr><td style="width:70px">Nivel {{ romano }}</td><td><div class="barra-nivel" style="width: {{ (n / maximo * 100)|round }}%; min-width: 2px"></div></td><td style="width:40px">{{ n }}</td></tr>
+      {% endfor %}
+      </table>
+    </div>
+
+    <div class="tarjeta">
+      <h2>Recetas pendientes de envío a la farmacia</h2>
+      <table>
+        <tr><th>Receta</th><th>Consulta</th><th>Intentos</th><th></th></tr>
+        {% for c in pendientes %}
+        <tr><td>{{ c.receta.id }}</td><td><a href="{{ url_for('ver_consulta', consulta_id=c.id) }}">{{ c.id }}</a></td><td>{{ c.receta.intentos_envio }}</td>
+            <td><form method="post" action="{{ url_for('reenviar_receta', consulta_id=c.id) }}"><button class="boton peq">Reenviar</button></form></td></tr>
+        {% else %}<tr><td colspan="4" class="muted">No hay recetas pendientes. Ninguna receta perdida.</td></tr>{% endfor %}
+      </table>
+    </div>
+
+    <div class="tarjeta">
+      <h2>Consultas recientes</h2>
+      <table>
+        <tr><th>Consulta</th><th>Nivel</th><th>Estado</th><th>Creada</th></tr>
+        {% for c in recientes %}
+        <tr><td><a href="{{ url_for('ver_consulta', consulta_id=c.id) }}">{{ c.id }}</a></td><td>{{ nivel(c.nivel) }}</td><td>{{ estado(c) }}</td><td>{{ c.fecha_hora_creacion.strftime('%d/%m %H:%M') }}</td></tr>
+        {% else %}<tr><td colspan="4" class="muted">Sin consultas.</td></tr>{% endfor %}
+      </table>
+    </div>
+
+    <div class="tarjeta">
+      <h2>Médicos</h2>
+      <table>
+        <tr><th>Nombre</th><th>Registro</th><th>Disponibilidad</th><th>Cuenta</th></tr>
+        {% for m in medicos %}
+        <tr><td>{{ m.nombre }}</td><td>{{ m.registro_medico }}</td><td>{{ m.disponibilidad.value }}</td>
+          <td><form method="post" action="{{ url_for('activar_medico', medico_id=m.id) }}"><button class="boton peq {{ 'gris' if m.activo else 'verde' }}">{{ 'Desactivar' if m.activo else 'Activar' }}</button></form></td></tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <div class="tarjeta">
+      <h2>Simuladores (para la demo)</h2>
+      <p class="muted">Reloj del sistema: {{ ahora.strftime('%d/%m %H:%M') }}</p>
+      <form method="post" action="{{ url_for('simulador') }}">
+        <p>MotorIA: <strong>{{ 'en línea' if s.motor_ia.disponible else 'caído (usa reglas de respaldo)' }}</strong><br>
+          <button class="boton peq gris" name="accion" value="ia_toggle">{{ 'Simular caída' if s.motor_ia.disponible else 'Restablecer' }}</button></p>
+        <p>FarmaciaLegacy: <strong>{{ 'caída' if s.farmacia_legacy.caida else 'en línea' }}</strong><br>
+          <button class="boton peq gris" name="accion" value="farmacia_toggle">{{ 'Restablecer' if s.farmacia_legacy.caida else 'Simular caída' }}</button></p>
+        <p>Reloj:<br>
+          <button class="boton peq gris" name="accion" value="reloj_16">Adelantar 16 min</button>
+          <button class="boton peq gris" name="accion" value="reloj_31">Adelantar 31 min</button>
+          <button class="boton peq gris" name="accion" value="reloj_reset">Reiniciar</button></p>
+      </form>
+    </div>
+    {{ panel_notificaciones(notificaciones) }}
+  </div>
+</div>
+{% endblock %}

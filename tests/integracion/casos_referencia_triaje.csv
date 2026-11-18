@@ -1,0 +1,41 @@
+id,sintoma,horas,intensidad,descripcion,fc,spo2,temp,nivel_referencia,justificacion
+R01,Dolor de pecho opresivo,1,9,se me va hacia el brazo izquierdo,115,95,36.8,2,Posible síndrome coronario
+R02,Dificultad para respirar,2,8,no puedo respirar bien,120,86,37.2,2,Disnea con SpO2 baja
+R03,Desmayo,1,6,tuve un desmayo en el baño,52,97,36.5,2,Síncope
+R04,Fiebre muy alta,10,7,,125,95,40.3,2,Fiebre >= 40 con taquicardia
+R05,Palpitaciones,1,7,siento el corazón muy rápido,148,95,37.0,2,Taquicardia > 130
+R06,Tos y ahogo,12,7,me ahogo al caminar,110,84,38.4,1,SpO2 < 85
+R07,Convulsión,0.5,8,tuve una convulsión hace media hora,100,96,37.8,2,Convulsión reciente
+R08,Herida con sangrado,1,8,sangrado abundante por herida en la mano,118,96,36.6,2,Hemorragia activa
+R09,Debilidad en un lado del cuerpo,1,7,cara caída y no puedo mover el brazo,90,97,36.7,2,Posible ataque cerebrovascular
+R10,Dolor de cabeza súbito,1,10,es el peor dolor de cabeza de mi vida y empezó de golpe,95,98,36.9,2,Cefalea en trueno
+R11,Dolor abdominal intenso,3,9,dolor muy fuerte en el abdomen con vómito,112,97,38.2,2,Dolor severo con signos alterados
+R12,Reacción alérgica,0.5,8,se me hinchó la lengua y me cuesta respirar,118,93,36.9,2,Posible anafilaxia
+R13,Ahogo,4,9,no puedo respirar,128,82,37.5,1,SpO2 < 85 con disnea severa
+R14,Dolor de pecho,2,6,dolor en el pecho al respirar,,,,2,Dolor torácico siempre se evalúa presencial
+R15,Fiebre y vómito,24,7,,108,96,39.0,3,Fiebre alta sin banderas rojas
+R16,Dolor lumbar intenso,8,8,no me deja caminar,92,98,36.7,3,Dolor intenso sin banderas
+R17,Dolor de oído,10,7,,,,,4,Otalgia sin otros hallazgos
+R18,Diarrea,36,6,muchas deposiciones y mucha sed,112,97,37.8,3,Posible deshidratación
+R19,Crisis de asma leve,3,6,silbido en el pecho y el inhalador no me mejora,105,93,36.9,3,Broncoespasmo sin SpO2 crítica
+R20,Herida en el dedo,1,6,me corté con un cuchillo y sangra poco,85,98,36.6,4,Herida menor
+R21,Dolor de muela,48,7,,,,,4,Odontalgia
+R22,Dolor de garganta,48,5,,88,98,37.9,4,Faringitis
+R23,Tos seca,72,4,tos seca sin fiebre,80,97,37.2,4,Tos sin hallazgos
+R24,Ardor al orinar,24,5,,84,98,37.6,4,Posible infección urinaria
+R25,Dolor de cabeza,12,5,,,,,4,Cefalea leve a moderada
+R26,Esguince de tobillo,6,5,me torcí el tobillo jugando,78,99,36.5,4,Trauma menor
+R27,Ojo rojo,24,3,ojo rojo con lagañas,,,,5,Conjuntivitis
+R28,Gripa,48,4,mocos y estornudos,82,98,37.4,5,Resfriado común
+R29,Renovar fórmula,0,1,necesito renovar mi fórmula de la tensión,72,98,36.5,5,Trámite
+R30,Acné,720,2,,,,,5,Consulta no urgente
+R31,Resultados de laboratorio,0,1,quiero que me expliquen mis exámenes,,,,5,Trámite
+R32,Picazón en el cuero cabelludo,240,2,,,,,5,No urgente
+R33,Estreñimiento,72,3,,76,98,36.6,5,No urgente
+R34,Dolor muscular,24,3,después de hacer ejercicio,74,99,36.6,5,No urgente
+R35,Insomnio,168,3,,,,,5,No urgente
+R36,Verruga,2000,1,,,,,5,No urgente
+R37,Hipo,2,2,,,,,5,No urgente
+R38,Picadura de mosquito,12,2,,,,,5,No urgente
+R39,Dolor lumbar leve,72,4,,,,,4,Dolor moderado
+R40,Mareo al levantarme,24,4,,76,98,36.5,4,Mareo leve
