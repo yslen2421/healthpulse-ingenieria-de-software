@@ -1,0 +1,18 @@
+{% macro nivel(n) -%}
+  {%- if n %}<span class="chip n{{ n.value }}">{{ n.romano }}</span>{% else %}—{% endif -%}
+{%- endmacro %}
+
+{% macro estado(c) -%}
+  <span class="chip e-{{ c.nombre_estado }}">{{ c.nombre_estado.replace('_', ' ') }}</span>
+{%- endmacro %}
+
+{% macro panel_notificaciones(notificaciones) %}
+<div class="tarjeta">
+  <h2>Notificaciones</h2>
+  {% for n in notificaciones %}
+    <div class="notif"><small>{{ n.fecha.strftime('%d/%m %H:%M') }}</small>{{ n.mensaje }}</div>
+  {% else %}
+    <p class="muted">Sin notificaciones.</p>
+  {% endfor %}
+</div>
+{% endmacro %}

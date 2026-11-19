@@ -25,7 +25,7 @@
           <td><a class="boton peq" href="{{ url_for('ver_consulta', consulta_id=c.id) }}">Atender</a></td>
         </tr>
         {% else %}
-        <tr><td colspan="6" class="muted">No tienes pacientes asignados.</td></tr>
+        <tr><td colspan="6" class="muted">No tienes pacientes asignados ahora. Solo aparecen las citas que el sistema te asignó a ti (no las del otro médico).{% if espera %} Hay {{ espera }} en lista de espera: ponte <strong>disponible</strong> para tomarlos.{% endif %}</td></tr>
         {% endfor %}
       </table>
     </div>

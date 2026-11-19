@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import nivel, estado %}
+{% block contenido %}
+<div class="tarjeta">
+  <h1>Mis consultas</h1>
+  <p><a class="boton verde" href="{{ url_for('nueva_consulta') }}">Nueva consulta</a></p>
+  <table>
+    <tr><th>Consulta</th><th>Síntoma</th><th>Nivel</th><th>Estado</th><th>Creada</th></tr>
+    {% for c in consultas %}
+    <tr>
+      <td><a href="{{ url_for('ver_consulta', consulta_id=c.id) }}">{{ c.id }}</a></td>
+      <td>{{ c.sintomas[0].sintoma_principal }}</td>
+      <td>{{ nivel(c.nivel) }}</td>
+      <td>{{ estado(c) }}</td>
+      <td>{{ c.fecha_hora_creacion.strftime('%d/%m %H:%M') }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">Todavía no tienes consultas. Crea la primera cuando quieras.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

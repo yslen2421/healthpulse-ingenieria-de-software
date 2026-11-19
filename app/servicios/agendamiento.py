@@ -29,7 +29,8 @@ class ServicioAgendamiento:
         disponibles = [m for m in self.repo.medicos() if m.esta_disponible]
         if not disponibles:
             return None
-        return min(disponibles, key=lambda m: (self.carga(m.id), m.nombre))
+        # A igual carga, gana el de menor registro (RM-10001 = médico de la demo).
+        return min(disponibles, key=lambda m: (self.carga(m.id), m.registro_medico, m.nombre))
 
     # ------------------------------------------------------------ asignar
     def asignar(self, consulta: ConsultaMedica) -> bool:
